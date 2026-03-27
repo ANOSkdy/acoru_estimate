@@ -121,6 +121,14 @@ export function EstimateShell() {
     setScores(INITIAL_SCORES);
   };
 
+  const handlePrint = () => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    window.print();
+  };
+
   return (
     <main className="estimate-page">
       <div className="estimate-bg" aria-hidden="true" />
@@ -142,6 +150,9 @@ export function EstimateShell() {
         </button>
         <button type="button" className="btn btn--secondary" onClick={handleClearScores}>
           点数のみクリア
+        </button>
+        <button type="button" className="btn btn--print" onClick={handlePrint}>
+          印刷 / PDF保存
         </button>
       </div>
 
@@ -258,14 +269,17 @@ export function EstimateShell() {
           </SectionCard>
 
           <SectionCard
-            title="プレビュー（フェーズ3準備）"
-            subtitle="印刷/PDF化に向けた見積内容のプレビュー"
+            title="概算見積書プレビュー"
+            subtitle="印刷 / PDF保存時に出力されるレイアウト"
             className="print-preview-shell"
           >
             <div className="print-preview" role="region" aria-label="見積書プレビュー領域">
               <div className="print-preview__page">
-                <h3>概算見積プレビュー</h3>
-                <dl>
+                <header className="print-doc__header">
+                  <h3>概算見積書</h3>
+                </header>
+
+                <dl className="print-doc__meta">
                   <div>
                     <dt>顧客名</dt>
                     <dd>{basicInfo.customerName || '未入力'}</dd>
@@ -278,19 +292,54 @@ export function EstimateShell() {
                     <dt>見積日</dt>
                     <dd>{basicInfo.estimateDate || '未入力'}</dd>
                   </div>
-                  <div>
-                    <dt>合計点</dt>
-                    <dd>{result.totalScore} 点</dd>
-                  </div>
-                  <div>
-                    <dt>概算月額</dt>
-                    <dd>{formatYen(result.monthlyFee)}</dd>
-                  </div>
-                  <div>
-                    <dt>備考</dt>
-                    <dd>{basicInfo.notes || 'なし'}</dd>
-                  </div>
                 </dl>
+
+                <section className="print-doc__section" aria-label="点数内訳">
+                  <h4>点数内訳</h4>
+                  <table className="print-doc__table">
+                    <tbody>
+                      <tr>
+                        <th scope="row">画面点</th>
+                        <td>{scores.screen} 点</td>
+                      </tr>
+                      <tr>
+                        <th scope="row">機能点</th>
+                        <td>{scores.feature} 点</td>
+                      </tr>
+                      <tr>
+                        <th scope="row">運用負荷点</th>
+                        <td>{scores.operation} 点</td>
+                      </tr>
+                      <tr>
+                        <th scope="row">合計点</th>
+                        <td>{result.totalScore} 点</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </section>
+
+                <section className="print-doc__section" aria-label="概算月額">
+                  <h4>月額算出</h4>
+                  <p className="print-doc__formula">
+                    月額 = {formatYen(BASE_MONTHLY_FEE)} +（{result.totalScore} 点 ×{' '}
+                    {formatYen(SCORE_UNIT_PRICE)}）
+                  </p>
+                  <p className="print-doc__monthly-fee">概算月額: {formatYen(result.monthlyFee)}</p>
+                </section>
+
+                <section className="print-doc__section" aria-label="備考">
+                  <h4>備考</h4>
+                  <p className="print-doc__note">{basicInfo.notes || 'なし'}</p>
+                </section>
+
+                <section className="print-doc__section print-doc__section--caution" aria-label="注意事項">
+                  <h4>注意事項</h4>
+                  <ul>
+                    <li>本書は概算見積です。</li>
+                    <li>詳細要件確定前の参考金額です。</li>
+                    <li>外部連携、データ移行、特殊要件等は別途調整となる場合があります。</li>
+                  </ul>
+                </section>
               </div>
             </div>
           </SectionCard>

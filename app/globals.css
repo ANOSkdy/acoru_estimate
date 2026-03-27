@@ -134,6 +134,12 @@ textarea {
   color: var(--text-primary);
 }
 
+.btn--print {
+  background: rgb(74 144 226 / 10%);
+  border-color: rgb(74 144 226 / 35%);
+  color: #1f4f8a;
+}
+
 .estimate-grid {
   display: grid;
   gap: 1rem;
@@ -303,28 +309,77 @@ textarea {
 }
 
 .print-preview__page h3 {
-  font-size: 0.98rem;
+  font-size: 1.2rem;
+  letter-spacing: 0.02em;
 }
 
-.print-preview__page dl {
+.print-doc__header {
+  border-bottom: 1px solid var(--border-soft);
+  padding-bottom: 0.45rem;
+}
+
+.print-doc__meta {
   display: grid;
   gap: 0.5rem;
 }
 
-.print-preview__page div {
+.print-doc__meta div {
   display: grid;
   grid-template-columns: 6.2rem minmax(0, 1fr);
   gap: 0.4rem;
   font-size: 0.88rem;
 }
 
-.print-preview__page dt {
+.print-doc__meta dt {
   color: var(--text-secondary);
 }
 
-.print-preview__page dd {
+.print-doc__meta dd {
   margin: 0;
   word-break: break-word;
+}
+
+.print-doc__section {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.print-doc__section h4 {
+  font-size: 0.9rem;
+}
+
+.print-doc__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+}
+
+.print-doc__table th,
+.print-doc__table td {
+  border: 1px solid var(--border-soft);
+  padding: 0.35rem 0.45rem;
+  text-align: left;
+}
+
+.print-doc__formula,
+.print-doc__note {
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+}
+
+.print-doc__monthly-fee {
+  font-size: 1rem;
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.print-doc__section--caution ul {
+  margin: 0;
+  padding-left: 1rem;
+  display: grid;
+  gap: 0.2rem;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
 }
 
 .estimate-footer {
@@ -360,13 +415,70 @@ textarea {
 }
 
 @media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm;
+  }
+
   body {
     background: #fff;
+    color: #111;
+    line-height: 1.35;
+  }
+
+  .estimate-page {
+    max-width: none;
+    margin: 0;
+    padding: 0;
   }
 
   .estimate-bg,
+  .estimate-hero,
   .estimate-actions,
-  .estimate-footer {
+  .estimate-footer,
+  .estimate-column > .estimate-card:not(.print-preview-shell) {
     display: none;
+  }
+
+  .estimate-grid,
+  .estimate-column {
+    display: block;
+    gap: 0;
+  }
+
+  .print-preview-shell,
+  .print-preview,
+  .print-preview__page {
+    border: 0;
+    box-shadow: none;
+    background: #fff;
+    padding: 0;
+    margin: 0;
+  }
+
+  .estimate-card:hover,
+  .btn:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  .print-doc__header h3 {
+    font-size: 18pt;
+  }
+
+  .print-doc__meta div,
+  .print-doc__table,
+  .print-doc__formula,
+  .print-doc__note {
+    font-size: 10pt;
+  }
+
+  .print-doc__monthly-fee {
+    font-size: 12pt;
+    color: #000;
+  }
+
+  .print-doc__section {
+    break-inside: avoid;
   }
 }
