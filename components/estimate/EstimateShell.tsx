@@ -1,20 +1,22 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useId, useMemo, useState } from 'react';
 import {
   applyScoreDelta,
+  BASE_MONTHLY_FEE,
   calculateEstimate,
+  coerceScoreInput,
   getScaleLabel,
   INITIAL_BASIC_INFO,
   INITIAL_SCORES,
   SAMPLE_BASIC_INFO,
   SAMPLE_SCORES,
+  sanitizeScore,
   SCORE_HINTS,
+  SCORE_UNIT_PRICE,
   type BasicInfo,
   type EstimateScores,
   type ScoreBucketKey,
-  BASE_MONTHLY_FEE,
-  SCORE_UNIT_PRICE,
 } from '@/lib/estimate';
 
 type SectionCardProps = {
@@ -49,40 +51,48 @@ function todayISODate() {
 }
 
 function ScoreControl({
+  id,
   label,
   value,
   onStep,
   onChange,
 }: {
+  id: string;
   label: string;
   value: number;
   onStep: (delta: number) => void;
-  onChange: (value: number) => void;
+  onChange: (value: string) => void;
 }) {
   return (
     <div className="score-input">
-      <label>{label}</label>
+      <label htmlFor={id}>{label}</label>
       <div className="score-input__controls">
         <button type="button" onClick={() => onStep(-1)} aria-label={`${label}を1減らす`}>
           −
         </button>
         <input
-          type="number"
-          min={0}
+          id={id}
+          type="text"
           inputMode="numeric"
-          value={value}
-          onChange={(event) => onChange(Number(event.target.value))}
+          pattern="[0-9]*"
+          value={value.toString()}
+          onChange={(event) => onChange(event.target.value)}
+          aria-describedby={`${id}-hint`}
         />
         <button type="button" onClick={() => onStep(1)} aria-label={`${label}を1増やす`}>
           ＋
         </button>
       </div>
+      <p id={`${id}-hint`} className="field-helper">
+        0〜999点 / 空欄は0点
+      </p>
     </div>
   );
 }
 
 export function EstimateShell() {
   const today = todayISODate();
+  const idPrefix = useId();
   const [basicInfo, setBasicInfo] = useState<BasicInfo>(INITIAL_BASIC_INFO(today));
   const [scores, setScores] = useState<EstimateScores>(INITIAL_SCORES);
 
@@ -92,14 +102,14 @@ export function EstimateShell() {
   const setScore = (key: ScoreBucketKey, nextValue: number) => {
     setScores((prev) => ({
       ...prev,
-      [key]: Math.max(0, Number.isFinite(nextValue) ? Math.floor(nextValue) : 0),
+      [key]: sanitizeScore(nextValue),
     }));
   };
 
   const stepScore = (key: ScoreBucketKey, delta: number) => {
     setScores((prev) => ({
       ...prev,
-      [key]: Math.max(0, prev[key] + delta),
+      [key]: sanitizeScore(prev[key] + delta),
     }));
   };
 
@@ -134,16 +144,17 @@ export function EstimateShell() {
       <div className="estimate-bg" aria-hidden="true" />
 
       <section className="estimate-hero estimate-card">
-        <p className="estimate-badge">フェーズ2: 見積入力 + 自動計算</p>
+        <p className="estimate-badge">フェーズ4: 実運用向け仕上げ</p>
         <h1>営業専用 概算見積ツール</h1>
         <p>
-          その場で入力しながら概算を提示できます。DB保存なしの軽量版として、基本情報・点数・見積金額を1ページで確認可能です。
+          商談中にその場で概算を提示できます。入力はローカル処理のみで、見積式は常に
+          「30,000円 +（合計点 × 1,000円）」で固定です。
         </p>
       </section>
 
       <div className="estimate-actions estimate-card" role="group" aria-label="見積アクション">
-        <button type="button" className="btn btn--ghost" onClick={handleReset}>
-          リセット
+        <button type="button" className="btn btn--print" onClick={handlePrint}>
+          印刷 / PDF保存
         </button>
         <button type="button" className="btn btn--primary" onClick={handleSample}>
           サンプル入力
@@ -151,80 +162,107 @@ export function EstimateShell() {
         <button type="button" className="btn btn--secondary" onClick={handleClearScores}>
           点数のみクリア
         </button>
-        <button type="button" className="btn btn--print" onClick={handlePrint}>
-          印刷 / PDF保存
+        <button type="button" className="btn btn--ghost" onClick={handleReset}>
+          全項目リセット
         </button>
       </div>
+
+      <aside className="estimate-memo estimate-card" aria-label="運用メモ">
+        <h2>運用メモ</h2>
+        <ul>
+          <li>まず「サンプル入力」で話し始め、要件ヒアリングしながら点数を調整してください。</li>
+          <li>最終提示前に「見積日・備考」を確認してから「印刷 / PDF保存」を実行します。</li>
+        </ul>
+      </aside>
 
       <div className="estimate-grid" role="presentation">
         <div className="estimate-column">
           <SectionCard title="基本情報" subtitle="商談中に必要な最小情報を入力">
-            <div className="field-grid">
-              <label className="form-field">
-                <span>顧客名</span>
-                <input
-                  type="text"
-                  value={basicInfo.customerName}
-                  onChange={(event) =>
-                    setBasicInfo((prev) => ({ ...prev, customerName: event.target.value }))
-                  }
-                />
-              </label>
-              <label className="form-field">
-                <span>案件名</span>
-                <input
-                  type="text"
-                  value={basicInfo.projectName}
-                  onChange={(event) =>
-                    setBasicInfo((prev) => ({ ...prev, projectName: event.target.value }))
-                  }
-                />
-              </label>
-              <label className="form-field">
-                <span>見積日</span>
-                <input
-                  type="date"
-                  value={basicInfo.estimateDate}
-                  onChange={(event) =>
-                    setBasicInfo((prev) => ({ ...prev, estimateDate: event.target.value }))
-                  }
-                />
-              </label>
-              <label className="form-field form-field--full">
-                <span>備考</span>
-                <textarea
-                  rows={3}
-                  value={basicInfo.notes}
-                  onChange={(event) => setBasicInfo((prev) => ({ ...prev, notes: event.target.value }))}
-                />
-              </label>
-            </div>
+            <fieldset className="form-fieldset">
+              <legend>案件情報</legend>
+              <div className="field-grid">
+                <label className="form-field" htmlFor={`${idPrefix}-customer`}>
+                  <span>顧客名</span>
+                  <input
+                    id={`${idPrefix}-customer`}
+                    type="text"
+                    placeholder="例）株式会社〇〇"
+                    value={basicInfo.customerName}
+                    onChange={(event) =>
+                      setBasicInfo((prev) => ({ ...prev, customerName: event.target.value }))
+                    }
+                  />
+                </label>
+                <label className="form-field" htmlFor={`${idPrefix}-project`}>
+                  <span>案件名</span>
+                  <input
+                    id={`${idPrefix}-project`}
+                    type="text"
+                    placeholder="例）営業支援ダッシュボード構築"
+                    value={basicInfo.projectName}
+                    onChange={(event) =>
+                      setBasicInfo((prev) => ({ ...prev, projectName: event.target.value }))
+                    }
+                  />
+                </label>
+                <label className="form-field" htmlFor={`${idPrefix}-date`}>
+                  <span>見積日</span>
+                  <input
+                    id={`${idPrefix}-date`}
+                    type="date"
+                    value={basicInfo.estimateDate}
+                    onChange={(event) =>
+                      setBasicInfo((prev) => ({ ...prev, estimateDate: event.target.value }))
+                    }
+                  />
+                </label>
+                <label className="form-field form-field--full" htmlFor={`${idPrefix}-notes`}>
+                  <span>備考</span>
+                  <textarea
+                    id={`${idPrefix}-notes`}
+                    rows={3}
+                    placeholder="例）データ移行・外部連携は別途精査"
+                    value={basicInfo.notes}
+                    onChange={(event) =>
+                      setBasicInfo((prev) => ({ ...prev, notes: event.target.value }))
+                    }
+                  />
+                </label>
+              </div>
+            </fieldset>
           </SectionCard>
 
           <SectionCard title="点数入力" subtitle="画面点・機能点・運用負荷点を直接入力">
-            <div className="score-grid">
-              <ScoreControl
-                label="画面点"
-                value={scores.screen}
-                onStep={(delta) => stepScore('screen', delta)}
-                onChange={(value) => setScore('screen', value)}
-              />
-              <ScoreControl
-                label="機能点"
-                value={scores.feature}
-                onStep={(delta) => stepScore('feature', delta)}
-                onChange={(value) => setScore('feature', value)}
-              />
-              <ScoreControl
-                label="運用負荷点"
-                value={scores.operation}
-                onStep={(delta) => stepScore('operation', delta)}
-                onChange={(value) => setScore('operation', value)}
-              />
-            </div>
+            <fieldset className="form-fieldset">
+              <legend>見積点数</legend>
+              <div className="score-grid">
+                <ScoreControl
+                  id={`${idPrefix}-screen`}
+                  label="画面点"
+                  value={scores.screen}
+                  onStep={(delta) => stepScore('screen', delta)}
+                  onChange={(value) => setScore('screen', coerceScoreInput(value))}
+                />
+                <ScoreControl
+                  id={`${idPrefix}-feature`}
+                  label="機能点"
+                  value={scores.feature}
+                  onStep={(delta) => stepScore('feature', delta)}
+                  onChange={(value) => setScore('feature', coerceScoreInput(value))}
+                />
+                <ScoreControl
+                  id={`${idPrefix}-operation`}
+                  label="運用負荷点"
+                  value={scores.operation}
+                  onStep={(delta) => stepScore('operation', delta)}
+                  onChange={(value) => setScore('operation', coerceScoreInput(value))}
+                />
+              </div>
+            </fieldset>
           </SectionCard>
 
           <SectionCard title="補助加点" subtitle="よくある要件をワンクリックで加点">
+            <p className="field-helper">必要な要件のみ押してください。押すたびに加算されます。</p>
             <div className="hint-buttons">
               {SCORE_HINTS.map((hint) => (
                 <button

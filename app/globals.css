@@ -104,6 +104,24 @@ textarea {
   gap: 0.55rem;
 }
 
+.estimate-memo {
+  margin-bottom: 1rem;
+}
+
+.estimate-memo h2 {
+  font-size: 1rem;
+  margin-bottom: 0.35rem;
+}
+
+.estimate-memo ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: var(--text-secondary);
+  display: grid;
+  gap: 0.25rem;
+  font-size: 0.9rem;
+}
+
 .btn {
   border: 1px solid var(--border-soft);
   border-radius: 999px;
@@ -115,6 +133,16 @@ textarea {
 .btn:hover {
   transform: translateY(-1px);
   box-shadow: 0 6px 18px rgb(35 48 63 / 12%);
+}
+
+.btn:focus-visible,
+.hint-button:focus-visible,
+.score-input__controls button:focus-visible,
+.score-input__controls input:focus-visible,
+.form-field input:focus-visible,
+.form-field textarea:focus-visible {
+  outline: 2px solid rgb(74 144 226 / 35%);
+  outline-offset: 1px;
 }
 
 .btn--primary {
@@ -196,6 +224,25 @@ textarea {
   resize: vertical;
 }
 
+.form-fieldset {
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  padding: 0.7rem;
+  margin: 0;
+}
+
+.form-fieldset legend {
+  padding: 0 0.35rem;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+.field-helper {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.79rem;
+}
+
 .score-grid {
   display: grid;
   gap: 0.7rem;
@@ -237,6 +284,7 @@ textarea {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.45rem;
+  margin-top: 0.6rem;
 }
 
 .hint-button {
@@ -279,6 +327,7 @@ textarea {
 
 .summary-list p {
   color: var(--text-secondary);
+  overflow-wrap: anywhere;
 }
 
 .summary-total {
@@ -306,6 +355,7 @@ textarea {
   display: grid;
   gap: 0.7rem;
   padding: 0.85rem;
+  overflow: hidden;
 }
 
 .print-preview__page h3 {
@@ -336,7 +386,7 @@ textarea {
 
 .print-doc__meta dd {
   margin: 0;
-  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .print-doc__section {
@@ -352,6 +402,7 @@ textarea {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.86rem;
+  table-layout: fixed;
 }
 
 .print-doc__table th,
@@ -365,6 +416,7 @@ textarea {
 .print-doc__note {
   font-size: 0.86rem;
   color: var(--text-secondary);
+  overflow-wrap: anywhere;
 }
 
 .print-doc__monthly-fee {
@@ -480,5 +532,10 @@ textarea {
 
   .print-doc__section {
     break-inside: avoid;
+    margin-bottom: 2.5mm;
+  }
+
+  .print-doc__section--caution ul {
+    gap: 0.1rem;
   }
 }

@@ -1,5 +1,6 @@
 export const BASE_MONTHLY_FEE = 30_000;
 export const SCORE_UNIT_PRICE = 1_000;
+export const MAX_SCORE_PER_BUCKET = 999;
 
 export type ScoreBucketKey = 'screen' | 'feature' | 'operation';
 
@@ -66,7 +67,21 @@ export function sanitizeScore(value: number): number {
     return 0;
   }
 
-  return Math.max(0, Math.floor(value));
+  return Math.min(MAX_SCORE_PER_BUCKET, Math.max(0, Math.floor(value)));
+}
+
+export function coerceScoreInput(value: string): number {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return 0;
+  }
+
+  const normalized = trimmed.replace(/[^\d-]/g, '');
+  if (!normalized || normalized === '-') {
+    return 0;
+  }
+
+  return sanitizeScore(Number(normalized));
 }
 
 export function sumScores(scores: EstimateScores): number {
