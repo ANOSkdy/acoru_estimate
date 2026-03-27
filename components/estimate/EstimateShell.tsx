@@ -1,6 +1,7 @@
 'use client';
 
 import { useId, useMemo, useState } from 'react';
+import { ESTIMATE_PRESETS, findEstimatePresetById } from '@/lib/estimate-presets';
 import {
   applyScoreDelta,
   BASE_MONTHLY_FEE,
@@ -95,9 +96,14 @@ export function EstimateShell() {
   const idPrefix = useId();
   const [basicInfo, setBasicInfo] = useState<BasicInfo>(INITIAL_BASIC_INFO(today));
   const [scores, setScores] = useState<EstimateScores>(INITIAL_SCORES);
+  const [selectedPresetId, setSelectedPresetId] = useState<string | null>(null);
 
   const result = useMemo(() => calculateEstimate(scores), [scores]);
   const scaleLabel = useMemo(() => getScaleLabel(result.totalScore), [result.totalScore]);
+  const selectedPreset = useMemo(
+    () => findEstimatePresetById(selectedPresetId),
+    [selectedPresetId],
+  );
 
   const setScore = (key: ScoreBucketKey, nextValue: number) => {
     setScores((prev) => ({
@@ -120,15 +126,38 @@ export function EstimateShell() {
   const handleReset = () => {
     setBasicInfo(INITIAL_BASIC_INFO(today));
     setScores(INITIAL_SCORES);
+    setSelectedPresetId(null);
   };
 
   const handleSample = () => {
     setBasicInfo(SAMPLE_BASIC_INFO(today));
     setScores(SAMPLE_SCORES);
+    setSelectedPresetId(null);
   };
 
   const handleClearScores = () => {
     setScores(INITIAL_SCORES);
+    setSelectedPresetId(null);
+  };
+
+  const handlePresetApply = (presetId: string) => {
+    const preset = findEstimatePresetById(presetId);
+    if (!preset) {
+      return;
+    }
+
+    setScores(preset.scores);
+    setBasicInfo((prev) => ({
+      ...prev,
+      customerName: prev.customerName || preset.suggestedCustomerName || '',
+      projectName: preset.suggestedProjectName ?? prev.projectName,
+      notes: prev.notes || preset.note || '',
+    }));
+    setSelectedPresetId(preset.id);
+  };
+
+  const handlePresetClear = () => {
+    setSelectedPresetId(null);
   };
 
   const handlePrint = () => {
@@ -166,6 +195,43 @@ export function EstimateShell() {
           全項目リセット
         </button>
       </div>
+
+      <section className="estimate-card template-presets" aria-label="テンプレートプリセット">
+        <header className="estimate-card__header">
+          <h2>テンプレから開始</h2>
+          <p>近いシステム種別を選ぶと、基本情報と点数の初期値をワンクリックで反映できます。</p>
+        </header>
+        <div className="preset-grid">
+          {ESTIMATE_PRESETS.map((preset) => {
+            const isActive = selectedPresetId === preset.id;
+            return (
+              <button
+                key={preset.id}
+                type="button"
+                className={`preset-button ${isActive ? 'preset-button--active' : ''}`.trim()}
+                onClick={() => handlePresetApply(preset.id)}
+                aria-pressed={isActive}
+              >
+                <p className="preset-button__label">{preset.label}</p>
+                <p className="preset-button__description">{preset.description}</p>
+                <p className="preset-button__scores">
+                  画面 {preset.scores.screen} / 機能 {preset.scores.feature} / 運用 {preset.scores.operation}
+                </p>
+              </button>
+            );
+          })}
+        </div>
+        <div className="preset-footer">
+          <p className="field-helper">
+            {selectedPreset
+              ? `選択中: ${selectedPreset.label}（必要に応じて下の入力で微調整してください）`
+              : '未選択（手動入力モード）'}
+          </p>
+          <button type="button" className="btn btn--ghost" onClick={handlePresetClear}>
+            テンプレ選択を解除
+          </button>
+        </div>
+      </section>
 
       <aside className="estimate-memo estimate-card" aria-label="運用メモ">
         <h2>運用メモ</h2>

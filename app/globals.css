@@ -104,6 +104,10 @@ textarea {
   gap: 0.55rem;
 }
 
+.template-presets {
+  margin-bottom: 1rem;
+}
+
 .estimate-memo {
   margin-bottom: 1rem;
 }
@@ -137,6 +141,7 @@ textarea {
 
 .btn:focus-visible,
 .hint-button:focus-visible,
+.preset-button:focus-visible,
 .score-input__controls button:focus-visible,
 .score-input__controls input:focus-visible,
 .form-field input:focus-visible,
@@ -285,6 +290,59 @@ textarea {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.45rem;
   margin-top: 0.6rem;
+}
+
+.preset-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.5rem;
+}
+
+.preset-button {
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  background: #fff;
+  text-align: left;
+  padding: 0.6rem 0.65rem;
+  display: grid;
+  gap: 0.2rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+
+.preset-button:hover {
+  background: rgb(74 144 226 / 8%);
+  border-color: rgb(74 144 226 / 35%);
+  transform: translateY(-1px);
+}
+
+.preset-button--active {
+  border-color: var(--primary);
+  background: rgb(74 144 226 / 12%);
+}
+
+.preset-button__label {
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.preset-button__description {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.preset-button__scores {
+  font-size: 0.78rem;
+  color: #1f4f8a;
+}
+
+.preset-footer {
+  margin-top: 0.65rem;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .hint-button {
@@ -487,6 +545,7 @@ textarea {
   .estimate-bg,
   .estimate-hero,
   .estimate-actions,
+  .template-presets,
   .estimate-footer,
   .estimate-column > .estimate-card:not(.print-preview-shell) {
     display: none;
