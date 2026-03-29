@@ -336,6 +336,10 @@ export function EstimateShell() {
                 <h3>規模ラベル</h3>
                 <p>{scaleLabel}</p>
               </article>
+              <article>
+                <h3>一括構築/譲渡</h3>
+                <p>{formatYen(result.buildTransferFee)}</p>
+              </article>
             </div>
           </SectionCard>
 

@@ -1,4 +1,4 @@
-export const BASE_MONTHLY_FEE = 30_000;
+export const BASE_MONTHLY_FEE = 40_000;
 export const SCORE_UNIT_PRICE = 1_000;
 export const MAX_SCORE_PER_BUCKET = 999;
 
@@ -92,11 +92,13 @@ export function calculateEstimate(scores: EstimateScores) {
   const totalScore = sumScores(scores);
   const scoreAddOn = totalScore * SCORE_UNIT_PRICE;
   const monthlyFee = BASE_MONTHLY_FEE + scoreAddOn;
+  const buildTransferFee = monthlyFee * 400;
 
   return {
     totalScore,
     scoreAddOn,
     monthlyFee,
+    buildTransferFee,
   };
 }
 
