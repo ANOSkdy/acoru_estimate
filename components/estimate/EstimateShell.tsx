@@ -418,9 +418,6 @@ export function EstimateShell() {
                 {formatYen(SCORE_UNIT_PRICE)}）
               </p>
               <p className="print-doc__monthly-fee">概算月額: {formatYen(result.monthlyFee)}</p>
-              <p className="print-doc__monthly-fee">
-                一括構築/譲渡: {formatYen(result.buildTransferFee)}（概算月額 × 400）
-              </p>
             </section>
 
             <section className="print-doc__section" aria-label="備考">
