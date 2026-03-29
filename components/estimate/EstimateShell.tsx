@@ -336,6 +336,10 @@ export function EstimateShell() {
                 <h3>規模ラベル</h3>
                 <p>{scaleLabel}</p>
               </article>
+              <article>
+                <h3>一括構築/譲渡</h3>
+                <p>{formatYen(result.buildTransferFee)}</p>
+              </article>
             </div>
           </SectionCard>
 
@@ -414,6 +418,9 @@ export function EstimateShell() {
                 {formatYen(SCORE_UNIT_PRICE)}）
               </p>
               <p className="print-doc__monthly-fee">概算月額: {formatYen(result.monthlyFee)}</p>
+              <p className="print-doc__monthly-fee">
+                一括構築/譲渡: {formatYen(result.buildTransferFee)}（概算月額 × 400）
+              </p>
             </section>
 
             <section className="print-doc__section" aria-label="備考">
