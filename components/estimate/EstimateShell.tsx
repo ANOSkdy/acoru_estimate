@@ -142,9 +142,7 @@ export function EstimateShell() {
 
   const handlePresetApply = (presetId: string) => {
     const preset = findEstimatePresetById(presetId);
-    if (!preset) {
-      return;
-    }
+    if (!preset) return;
 
     setScores(preset.scores);
     setBasicInfo((prev) => ({
@@ -161,10 +159,7 @@ export function EstimateShell() {
   };
 
   const handlePrint = () => {
-    if (typeof window === 'undefined') {
-      return;
-    }
-
+    if (typeof window === 'undefined') return;
     window.print();
   };
 
@@ -173,23 +168,14 @@ export function EstimateShell() {
       <div className="estimate-bg" aria-hidden="true" />
 
       <section className="estimate-hero estimate-card">
-        <p className="estimate-badge">フェーズ4: 実運用向け仕上げ</p>
-        <h1>営業専用 概算見積ツール</h1>
-        <p>
-          商談中にその場で概算を提示できます。入力はローカル処理のみで、見積式は常に
-          「30,000円 +（合計点 × 1,000円）」で固定です。
-        </p>
+        <p className="estimate-badge">管理者用</p>
+        <h1>見積算出ツール</h1>
+        <p>テンプレートから初期値を選び、その場で微調整しながら概算見積を提示できます。</p>
       </section>
 
       <div className="estimate-actions estimate-card" role="group" aria-label="見積アクション">
         <button type="button" className="btn btn--print" onClick={handlePrint}>
-          印刷 / PDF保存
-        </button>
-        <button type="button" className="btn btn--primary" onClick={handleSample}>
-          サンプル入力
-        </button>
-        <button type="button" className="btn btn--secondary" onClick={handleClearScores}>
-          点数のみクリア
+          PDF保存
         </button>
         <button type="button" className="btn btn--ghost" onClick={handleReset}>
           全項目リセット
@@ -198,9 +184,10 @@ export function EstimateShell() {
 
       <section className="estimate-card template-presets" aria-label="テンプレートプリセット">
         <header className="estimate-card__header">
-          <h2>テンプレから開始</h2>
+          <h2>テンプレート</h2>
           <p>近いシステム種別を選ぶと、基本情報と点数の初期値をワンクリックで反映できます。</p>
         </header>
+
         <div className="preset-grid">
           {ESTIMATE_PRESETS.map((preset) => {
             const isActive = selectedPresetId === preset.id;
@@ -221,6 +208,7 @@ export function EstimateShell() {
             );
           })}
         </div>
+
         <div className="preset-footer">
           <p className="field-helper">
             {selectedPreset
@@ -233,17 +221,9 @@ export function EstimateShell() {
         </div>
       </section>
 
-      <aside className="estimate-memo estimate-card" aria-label="運用メモ">
-        <h2>運用メモ</h2>
-        <ul>
-          <li>まず「サンプル入力」で話し始め、要件ヒアリングしながら点数を調整してください。</li>
-          <li>最終提示前に「見積日・備考」を確認してから「印刷 / PDF保存」を実行します。</li>
-        </ul>
-      </aside>
-
       <div className="estimate-grid" role="presentation">
-        <div className="estimate-column">
-          <SectionCard title="基本情報" subtitle="商談中に必要な最小情報を入力">
+        <div className="estimate-column estimate-column--left">
+          <SectionCard title="基本情報" subtitle="">
             <fieldset className="form-fieldset">
               <legend>案件情報</legend>
               <div className="field-grid">
@@ -259,6 +239,7 @@ export function EstimateShell() {
                     }
                   />
                 </label>
+
                 <label className="form-field" htmlFor={`${idPrefix}-project`}>
                   <span>案件名</span>
                   <input
@@ -271,6 +252,7 @@ export function EstimateShell() {
                     }
                   />
                 </label>
+
                 <label className="form-field" htmlFor={`${idPrefix}-date`}>
                   <span>見積日</span>
                   <input
@@ -282,11 +264,12 @@ export function EstimateShell() {
                     }
                   />
                 </label>
+
                 <label className="form-field form-field--full" htmlFor={`${idPrefix}-notes`}>
                   <span>備考</span>
                   <textarea
                     id={`${idPrefix}-notes`}
-                    rows={3}
+                    rows={4}
                     placeholder="例）データ移行・外部連携は別途精査"
                     value={basicInfo.notes}
                     onChange={(event) =>
@@ -326,26 +309,10 @@ export function EstimateShell() {
               </div>
             </fieldset>
           </SectionCard>
-
-          <SectionCard title="補助加点" subtitle="よくある要件をワンクリックで加点">
-            <p className="field-helper">必要な要件のみ押してください。押すたびに加算されます。</p>
-            <div className="hint-buttons">
-              {SCORE_HINTS.map((hint) => (
-                <button
-                  key={hint.key}
-                  type="button"
-                  className="hint-button"
-                  onClick={() => applyHint(hint.effects)}
-                >
-                  {hint.label}
-                </button>
-              ))}
-            </div>
-          </SectionCard>
         </div>
 
-        <div className="estimate-column">
-          <SectionCard title="概算サマリー" subtitle="入力内容と計算結果をリアルタイム表示">
+        <div className="estimate-column estimate-column--right">
+          <SectionCard title="概算サマリー" subtitle="">
             <div className="summary-list" aria-live="polite">
               <article>
                 <h3>合計点</h3>
@@ -372,87 +339,99 @@ export function EstimateShell() {
             </div>
           </SectionCard>
 
-          <SectionCard
-            title="概算見積書プレビュー"
-            subtitle="印刷 / PDF保存時に出力されるレイアウト"
-            className="print-preview-shell"
-          >
-            <div className="print-preview" role="region" aria-label="見積書プレビュー領域">
-              <div className="print-preview__page">
-                <header className="print-doc__header">
-                  <h3>概算見積書</h3>
-                </header>
-
-                <dl className="print-doc__meta">
-                  <div>
-                    <dt>顧客名</dt>
-                    <dd>{basicInfo.customerName || '未入力'}</dd>
-                  </div>
-                  <div>
-                    <dt>案件名</dt>
-                    <dd>{basicInfo.projectName || '未入力'}</dd>
-                  </div>
-                  <div>
-                    <dt>見積日</dt>
-                    <dd>{basicInfo.estimateDate || '未入力'}</dd>
-                  </div>
-                </dl>
-
-                <section className="print-doc__section" aria-label="点数内訳">
-                  <h4>点数内訳</h4>
-                  <table className="print-doc__table">
-                    <tbody>
-                      <tr>
-                        <th scope="row">画面点</th>
-                        <td>{scores.screen} 点</td>
-                      </tr>
-                      <tr>
-                        <th scope="row">機能点</th>
-                        <td>{scores.feature} 点</td>
-                      </tr>
-                      <tr>
-                        <th scope="row">運用負荷点</th>
-                        <td>{scores.operation} 点</td>
-                      </tr>
-                      <tr>
-                        <th scope="row">合計点</th>
-                        <td>{result.totalScore} 点</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </section>
-
-                <section className="print-doc__section" aria-label="概算月額">
-                  <h4>月額算出</h4>
-                  <p className="print-doc__formula">
-                    月額 = {formatYen(BASE_MONTHLY_FEE)} +（{result.totalScore} 点 ×{' '}
-                    {formatYen(SCORE_UNIT_PRICE)}）
-                  </p>
-                  <p className="print-doc__monthly-fee">概算月額: {formatYen(result.monthlyFee)}</p>
-                </section>
-
-                <section className="print-doc__section" aria-label="備考">
-                  <h4>備考</h4>
-                  <p className="print-doc__note">{basicInfo.notes || 'なし'}</p>
-                </section>
-
-                <section className="print-doc__section print-doc__section--caution" aria-label="注意事項">
-                  <h4>注意事項</h4>
-                  <ul>
-                    <li>本書は概算見積です。</li>
-                    <li>詳細要件確定前の参考金額です。</li>
-                    <li>外部連携、データ移行、特殊要件等は別途調整となる場合があります。</li>
-                  </ul>
-                </section>
-              </div>
+          <SectionCard title="補助加点" subtitle="よくある要件をワンクリックで加点">
+            <p className="field-helper">必要な要件のみ押してください。押すたびに加算されます。</p>
+            <div className="hint-buttons">
+              {SCORE_HINTS.map((hint) => (
+                <button
+                  key={hint.key}
+                  type="button"
+                  className="hint-button"
+                  onClick={() => applyHint(hint.effects)}
+                >
+                  {hint.label}
+                </button>
+              ))}
             </div>
           </SectionCard>
         </div>
       </div>
 
-      <footer className="estimate-footer estimate-card">
-        <p>社内営業向けの簡易見積版です。認証・DB保存・履歴管理・外部連携はフェーズ対象外。</p>
-      </footer>
+      <SectionCard
+        title="概算見積書プレビュー"
+        subtitle=""
+        className="print-preview-shell print-preview-shell--full"
+      >
+        <div className="print-preview" role="region" aria-label="見積書プレビュー領域">
+          <div className="print-preview__page">
+            <header className="print-doc__header">
+              <h3>概算見積書</h3>
+            </header>
+
+            <dl className="print-doc__meta">
+              <div>
+                <dt>顧客名</dt>
+                <dd>{basicInfo.customerName || '未入力'}</dd>
+              </div>
+              <div>
+                <dt>案件名</dt>
+                <dd>{basicInfo.projectName || '未入力'}</dd>
+              </div>
+              <div>
+                <dt>見積日</dt>
+                <dd>{basicInfo.estimateDate || '未入力'}</dd>
+              </div>
+            </dl>
+
+            <section className="print-doc__section" aria-label="点数内訳">
+              <h4>点数内訳</h4>
+              <table className="print-doc__table">
+                <tbody>
+                  <tr>
+                    <th scope="row">画面点</th>
+                    <td>{scores.screen} 点</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">機能点</th>
+                    <td>{scores.feature} 点</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">運用負荷点</th>
+                    <td>{scores.operation} 点</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">合計点</th>
+                    <td>{result.totalScore} 点</td>
+                  </tr>
+                </tbody>
+              </table>
+            </section>
+
+            <section className="print-doc__section" aria-label="概算月額">
+              <h4>月額算出</h4>
+              <p className="print-doc__formula">
+                月額 = {formatYen(BASE_MONTHLY_FEE)} +（{result.totalScore} 点 ×{' '}
+                {formatYen(SCORE_UNIT_PRICE)}）
+              </p>
+              <p className="print-doc__monthly-fee">概算月額: {formatYen(result.monthlyFee)}</p>
+            </section>
+
+            <section className="print-doc__section" aria-label="備考">
+              <h4>備考</h4>
+              <p className="print-doc__note">{basicInfo.notes || 'なし'}</p>
+            </section>
+
+            <section className="print-doc__section print-doc__section--caution" aria-label="注意事項">
+              <h4>注意事項</h4>
+              <ul>
+                <li>本書は概算見積です。</li>
+                <li>詳細要件確定前の参考金額です。</li>
+                <li>外部連携、データ移行、特殊要件等は別途調整となる場合があります。</li>
+              </ul>
+            </section>
+          </div>
+        </div>
+      </SectionCard>
     </main>
   );
 }
