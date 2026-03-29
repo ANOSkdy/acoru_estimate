@@ -47,10 +47,6 @@ function formatYen(value: number) {
   });
 }
 
-function formatPersonMonths(value: number) {
-  return `${value.toFixed(1)} 人月`;
-}
-
 function todayISODate() {
   return new Date().toISOString().slice(0, 10);
 }
@@ -195,7 +191,6 @@ export function EstimateShell() {
         <div className="preset-grid">
           {ESTIMATE_PRESETS.map((preset) => {
             const isActive = selectedPresetId === preset.id;
-            const presetResult = calculateEstimate(preset.scores);
             return (
               <button
                 key={preset.id}
@@ -208,9 +203,6 @@ export function EstimateShell() {
                 <p className="preset-button__description">{preset.description}</p>
                 <p className="preset-button__scores">
                   画面 {preset.scores.screen} / 機能 {preset.scores.feature} / 運用 {preset.scores.operation}
-                </p>
-                <p className="preset-button__scores">
-                  想定工数 {formatPersonMonths(presetResult.effortPersonMonths)}（{presetResult.effortPersonDays} 人日）
                 </p>
               </button>
             );
@@ -344,12 +336,6 @@ export function EstimateShell() {
                 <h3>規模ラベル</h3>
                 <p>{scaleLabel}</p>
               </article>
-              <article>
-                <h3>想定工数</h3>
-                <p>
-                  {formatPersonMonths(result.effortPersonMonths)}（{result.effortPersonDays} 人日）
-                </p>
-              </article>
             </div>
           </SectionCard>
 
@@ -428,9 +414,6 @@ export function EstimateShell() {
                 {formatYen(SCORE_UNIT_PRICE)}）
               </p>
               <p className="print-doc__monthly-fee">概算月額: {formatYen(result.monthlyFee)}</p>
-              <p className="print-doc__monthly-fee">
-                想定工数: {formatPersonMonths(result.effortPersonMonths)}（{result.effortPersonDays} 人日）
-              </p>
             </section>
 
             <section className="print-doc__section" aria-label="備考">
