@@ -1,6 +1,8 @@
 export const BASE_MONTHLY_FEE = 30_000;
 export const SCORE_UNIT_PRICE = 1_000;
 export const MAX_SCORE_PER_BUCKET = 999;
+export const PERSON_MONTHS_PER_SCORE = 0.15;
+export const WORKING_DAYS_PER_PERSON_MONTH = 20;
 
 export type ScoreBucketKey = 'screen' | 'feature' | 'operation';
 
@@ -92,11 +94,15 @@ export function calculateEstimate(scores: EstimateScores) {
   const totalScore = sumScores(scores);
   const scoreAddOn = totalScore * SCORE_UNIT_PRICE;
   const monthlyFee = BASE_MONTHLY_FEE + scoreAddOn;
+  const effortPersonMonths = Number((totalScore * PERSON_MONTHS_PER_SCORE).toFixed(1));
+  const effortPersonDays = Math.round(effortPersonMonths * WORKING_DAYS_PER_PERSON_MONTH);
 
   return {
     totalScore,
     scoreAddOn,
     monthlyFee,
+    effortPersonMonths,
+    effortPersonDays,
   };
 }
 
